@@ -1,84 +1,129 @@
-CREATE DATABASE netflix_DB
+-- Author: James Laurence
+-- Date: November 28th, 2023
+-- DBAS3018 - Assignment 6 Netflix Database
+
+CREATE DATABASE netflix_DB -- create database
 GO
-USE netflix_DB
+USE netflix_DB -- use database
 GO
-CREATE TABLE TITLE (
-    Title_ID int IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE TITLE ( -- creates Title Table
+    Title_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Title_Name varchar(255),
     Title_ReleaseYear char(4),
     Title_DateAdded date,
     Title_Description varchar(255),
-    Title_Rating_ID_fk int(10)
+    Title_Rating_ID_fk int(10) -- foreign key Rating.Rating_ID
 )
 GO
-CREATE TABLE RATING (
-    Rating_ID int(10) PRIMARY KEY,
-    Rating_Title_ID_fk int(10),
+CREATE TABLE RATING ( -- creates RATING Table
+    Rating_ID int(10) IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Rating_Class varchar(30)
 )
 GO
-CREATE TABLE CAST_ROLE (
-    CR_Role_ID_fk int(10),
-    CR_Cast_ID_fk int(10),
-    CR_Title_ID_fk int(10),
-    CONSTRAINT CR_COMP_KEY PRIMARY KEY (CR_Role_ID_fk, CR_Cast_ID_fk, CR_Title_ID_fk)
+CREATE TABLE CAST_ROLE ( -- creates CAST_ROLE Table
+    CR_Role_ID_fk int(10), -- foreign key Role.Role_ID
+    CR_Cast_ID_fk int(10), -- foreign key Cast.Cast_ID
+    CR_Title_ID_fk int(10), -- foreign key Title.Title_ID
+    CONSTRAINT CR_COMP_KEY PRIMARY KEY (CR_Role_ID_fk, CR_Cast_ID_fk, CR_Title_ID_fk) -- Composite primary key constraint
 )
 GO
-CREATE TABLE ROLE (
-    Role_ID int IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE ROLE ( -- creates ROLE Table
+    Role_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Role_Job varchar(50),
 )
 GO
-INSERT INTO ROLE (Role_Job)
+INSERT INTO ROLE (Role_Job) -- Inserts role types into role table
 VALUES ('Actor'),('Director')
 GO
-CREATE TABLE CAST (
-    Cast_ID int IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE CAST ( -- creates CAST Table
+    Cast_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Cast_FName varchar(50),
     Cast_LName varchar(50)
 )
 GO
-CREATE TABLE TITLE_COUNTRY (
-    TC_Title_ID_fk int(10),
-    TC_Country_ID_fk int(10),
-    CONSTRAINT TC_COMP_KEY PRIMARY KEY (TC_Title_ID_fk, TC_Country_ID_fk)
+CREATE TABLE TITLE_COUNTRY ( -- creates TITLE_COUNTRY Table
+    TC_Title_ID_fk int(10), -- foreign key Title.Title_ID
+    TC_Country_ID_fk int(10), -- foreign key Country.Country_ID
+    CONSTRAINT TC_COMP_KEY PRIMARY KEY (TC_Title_ID_fk, TC_Country_ID_fk) -- Composite primary key constraint
 )
 GO
-CREATE TABLE COUNTRY (
-    Country_ID int IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE COUNTRY ( -- creates COUNTRY Table
+    Country_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Country_Name varchar(255)
 )
 GO
-CREATE TABLE TITLE_GENRE (
-    TG_Genre_ID_fk int IDENTITY(1,1) PRIMARY KEY,
-    TG_Title_ID_fk int(10)
+CREATE TABLE TITLE_GENRE ( -- creates TITLE_GENRE Table
+    TG_Genre_ID_fk int(10), -- foreign key Genre.Genre_ID
+    TG_Title_ID_fk int(10) -- foreign key Title.Title_ID
 )
 GO
-CREATE TABLE GENRE (
-    Genre_ID int IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE GENRE ( -- creates GENRE Table
+    Genre_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Genre_Listed_In varchar(255)
 )
 GO
-CREATE TABLE TITLE_FORMAT (
-    TF_Title_ID_fk int(10),
-    TF_Format_ID_fk int(10)
-    CONSTRAINT TF_COMP_KEY PRIMARY KEY (TF_Title_ID_fk, TF_Format_ID_fk)
+CREATE TABLE TITLE_FORMAT ( -- creates TITLE_FORMAT Table
+    TF_Title_ID_fk int(10),  -- foreign key Title.Title_ID
+    TF_Format_ID_fk int(10)  -- foreign key Format.Format_ID
+    CONSTRAINT TF_COMP_KEY PRIMARY KEY (TF_Title_ID_fk, TF_Format_ID_fk) -- Composite primary key constraint
 )
 GO
-CREATE TABLE FORMAT (
-    Format_ID int IDENTITY(1,1) PRIMARY KEY,
+CREATE TABLE FORMAT ( -- creates FORMAT Table
+    Format_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Format_Type varchar(10)
 )
 GO
-CREATE TABLE FORMAT_DURATION (
-    FD_Duration_ID_fk int(10),
-    FD_Format_ID_fk int(10),
-    FD_Length int(10)
-    CONSTRAINT FD_COMP_KEY PRIMARY KEY (FD_Duration_ID_fk, FD_Format_ID_fk)
-)
-GO
-CREATE TABLE DURATION (
-    Duration_ID int IDENTITY(1,1) PRIMARY KEY,
-    Duration_Format_ID_fk int(10),
+CREATE TABLE DURATION ( -- creates DURATION Table
+    Duration_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
+    Duration_Format_ID_fk int(10),  -- foreign key Format.Format_ID
     Duration_Duration varchar(255)
 )
+GO
+-- Foreign Key Relationship TITLE Table
+ALTER TABLE TITLE
+ADD CONSTRAINT Title_Rating_ID_fk FOREIGN KEY (Title_Rating_ID_fk)
+REFERENCES RATING(Rating_ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship CAST_ROLE Table
+ALTER TABLE CAST_ROLE
+ADD CONSTRAINT CR_Role_ID_fk FOREIGN KEY (CR_Role_ID_fk)
+REFERENCES ROLE(Role_ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship CAST_ROLE Table
+ALTER TABLE CAST_ROLE
+ADD CONSTRAINT CR_Cast_ID_fk FOREIGN KEY (CR_Cast_ID_fk)
+REFERENCES CAST(Cast_ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship CAST_ROLE Table
+ALTER TABLE CAST_ROLE
+ADD CONSTRAINT CR_Title_ID_fk FOREIGN KEY (CR_Title_ID_fk)
+REFERENCES TITLE(Title_ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship TITLE_COUNTRY Table
+ALTER TABLE TITLE_COUNTRY
+ADD CONSTRAINT TC_Title_ID_fk FOREIGN KEY (TC_Title_ID_fk)
+REFERENCES TITLE(Title_ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship TITLE_COUNTRY Table
+ALTER TABLE TITLE_COUNTRY
+ADD CONSTRAINT CR_Title_ID_fk FOREIGN KEY (CR_Title_ID_fk)
+REFERENCES TITLE(Title_ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship CAST_ROLE Table
+ALTER TABLE CAST_ROLE
+ADD CONSTRAINT CR_Title_ID_fk FOREIGN KEY (CR_Title_ID_fk)
+REFERENCES TITLE(Title_ID)
+ON UPDATE CASCADE
+ON DELETE CASCADE
