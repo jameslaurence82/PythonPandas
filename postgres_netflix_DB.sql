@@ -2,146 +2,171 @@
 -- Date: November 28th, 2023
 -- DBAS3018 - Assignment 6 Netflix Database
 
-CREATE DATABASE netflix_DB; -- create database
-\c netflix_DB; -- use database
+-- Create database
+CREATE DATABASE netflix_DB;
 
-CREATE TABLE TITLE ( -- creates Title Table
-    Title_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
+-- Connect to the database
+\c netflix_DB;
+
+-- Create TITLE Table
+CREATE TABLE TITLE (
+    Title_ID SERIAL PRIMARY KEY,
     Title_Name varchar(255),
     Title_ReleaseYear char(4),
     Title_DateAdded date,
     Title_Description varchar(255),
-    Title_Rating_ID_fk int -- foreign key Rating.Rating_ID
+    Title_Rating_ID_fk int REFERENCES RATING(Rating_ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE RATING ( -- creates RATING Table
-    Rating_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
+-- Create RATING Table
+CREATE TABLE RATING (
+    Rating_ID SERIAL PRIMARY KEY,
     Rating_Class varchar(30)
 );
 
-CREATE TABLE CAST_ROLE ( -- creates CAST_ROLE Table
-    CR_Role_ID_fk int, -- foreign key Role.Role_ID
-    CR_Cast_ID_fk int, -- foreign key "CAST".Cast_ID
-    CR_Title_ID_fk int, -- foreign key TITLE.Title_ID
-    CONSTRAINT CR_COMP_KEY PRIMARY KEY (CR_Role_ID_fk, CR_Cast_ID_fk, CR_Title_ID_fk) -- Composite primary key constraint
+-- Create CAST_ROLE Table
+CREATE TABLE CAST_ROLE (
+    CR_Role_ID_fk int REFERENCES ROLE(Role_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    CR_Cast_ID_fk int REFERENCES "CAST"(Cast_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    CR_Title_ID_fk int REFERENCES TITLE(Title_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT CR_COMP_KEY PRIMARY KEY (CR_Role_ID_fk, CR_Cast_ID_fk, CR_Title_ID_fk)
 );
 
-CREATE TABLE ROLE ( -- creates ROLE Table
-    Role_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
+-- Create ROLE Table
+CREATE TABLE ROLE (
+    Role_ID SERIAL PRIMARY KEY,
     Role_Job varchar(50)
 );
 
-INSERT INTO ROLE (Role_Job) -- Inserts role types into role table
-VALUES ('Actor'),('Director');
+-- Insert role types into ROLE table
+INSERT INTO ROLE (Role_Job) VALUES ('Actor'),('Director');
 
-CREATE TABLE "CAST" ( -- creates CAST Table
-    Cast_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
+-- Create CAST Table
+CREATE TABLE "CAST" (
+    Cast_ID SERIAL PRIMARY KEY,
     Cast_FName varchar(50),
     Cast_LName varchar(50)
 );
 
-CREATE TABLE TITLE_COUNTRY ( -- creates TITLE_COUNTRY Table
-    TC_Title_ID_fk int, -- foreign key TITLE.Title_ID
-    TC_Country_ID_fk int, -- foreign key COUNTRY.Country_ID
-    CONSTRAINT TC_COMP_KEY PRIMARY KEY (TC_Title_ID_fk, TC_Country_ID_fk) -- Composite primary key constraint
+-- Create TITLE_COUNTRY Table
+CREATE TABLE TITLE_COUNTRY (
+    TC_Title_ID_fk int REFERENCES TITLE(Title_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    TC_Country_ID_fk int REFERENCES COUNTRY(Country_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT TC_COMP_KEY PRIMARY KEY (TC_Title_ID_fk, TC_Country_ID_fk)
 );
 
-CREATE TABLE COUNTRY ( -- creates COUNTRY Table
-    Country_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
+-- Create COUNTRY Table
+CREATE TABLE COUNTRY (
+    Country_ID SERIAL PRIMARY KEY,
     Country_Name varchar(255)
 );
 
-CREATE TABLE TITLE_GENRE ( -- creates TITLE_GENRE Table
-    TG_Genre_ID_fk int, -- foreign key GENRE.Genre_ID
-    TG_Title_ID_fk int -- foreign key TITLE.Title_ID
+-- Create TITLE_GENRE Table
+CREATE TABLE TITLE_GENRE (
+    TG_Genre_ID_fk int REFERENCES GENRE(Genre_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    TG_Title_ID_fk int REFERENCES TITLE(Title_ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE GENRE ( -- creates GENRE Table
-    Genre_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
+-- Create GENRE Table
+CREATE TABLE GENRE (
+    Genre_ID SERIAL PRIMARY KEY,
     Genre_Listed_In varchar(255)
 );
 
-CREATE TABLE TITLE_FORMAT ( -- creates TITLE_FORMAT Table
-    TF_Title_ID_fk int,  -- foreign key TITLE.Title_ID
-    TF_Format_ID_fk int,  -- foreign key FORMAT.Format_ID
-    CONSTRAINT TF_COMP_KEY PRIMARY KEY (TF_Title_ID_fk, TF_Format_ID_fk) -- Composite primary key constraint
+-- Create TITLE_FORMAT Table
+CREATE TABLE TITLE_FORMAT (
+    TF_Title_ID_fk int REFERENCES TITLE(Title_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    TF_Format_ID_fk int REFERENCES FORMAT(Format_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT TF_COMP_KEY PRIMARY KEY (TF_Title_ID_fk, TF_Format_ID_fk)
 );
 
-CREATE TABLE FORMAT ( -- creates FORMAT Table
-    Format_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
+-- Create FORMAT Table
+CREATE TABLE FORMAT (
+    Format_ID SERIAL PRIMARY KEY,
     Format_Type varchar(10)
 );
 
-CREATE TABLE DURATION ( -- creates DURATION Table
-    Duration_ID serial PRIMARY KEY, -- Sets Serial (Auto Increment ID)
-    Duration_Format_ID_fk int,  -- foreign key FORMAT.Format_ID
+-- Create DURATION Table
+CREATE TABLE DURATION (
+    Duration_ID SERIAL PRIMARY KEY,
+    Duration_Format_ID_fk int REFERENCES FORMAT(Format_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     Duration_Duration varchar(255)
 );
 
--- Foreign Key Relationships
-
+-- Foreign Key Relationship TITLE Table
+-- Note: PostgreSQL does not support "ON UPDATE CASCADE" for SERIAL columns
+-- Make sure to handle updates manually
 ALTER TABLE TITLE
-ADD CONSTRAINT FK_Rating_ID FOREIGN KEY (Title_Rating_ID_fk)
+ADD CONSTRAINT FK_Title_Rating_ID FOREIGN KEY (Title_Rating_ID_fk)
 REFERENCES RATING(Rating_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship CAST_ROLE Table
 ALTER TABLE CAST_ROLE
-ADD CONSTRAINT FK_Role_ID FOREIGN KEY (CR_Role_ID_fk)
+ADD CONSTRAINT FK_CR_Role_ID FOREIGN KEY (CR_Role_ID_fk)
 REFERENCES ROLE(Role_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship CAST_ROLE Table
 ALTER TABLE CAST_ROLE
-ADD CONSTRAINT FK_Cast_ID FOREIGN KEY (CR_Cast_ID_fk)
+ADD CONSTRAINT FK_CR_Cast_ID FOREIGN KEY (CR_Cast_ID_fk)
 REFERENCES "CAST"(Cast_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship CAST_ROLE Table
 ALTER TABLE CAST_ROLE
-ADD CONSTRAINT FK_Title_ID FOREIGN KEY (CR_Title_ID_fk)
+ADD CONSTRAINT FK_CR_Title_ID FOREIGN KEY (CR_Title_ID_fk)
 REFERENCES TITLE(Title_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship TITLE_COUNTRY Table
 ALTER TABLE TITLE_COUNTRY
-ADD CONSTRAINT FK_Title_ID FOREIGN KEY (TC_Title_ID_fk)
+ADD CONSTRAINT FK_TC_Title_ID FOREIGN KEY (TC_Title_ID_fk)
 REFERENCES TITLE(Title_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship TITLE_COUNTRY Table
 ALTER TABLE TITLE_COUNTRY
-ADD CONSTRAINT FK_Country_ID FOREIGN KEY (TC_Country_ID_fk)
+ADD CONSTRAINT FK_TC_Country_ID FOREIGN KEY (TC_Country_ID_fk)
 REFERENCES COUNTRY(Country_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship TITLE_GENRE Table
 ALTER TABLE TITLE_GENRE
-ADD CONSTRAINT FK_Genre_ID FOREIGN KEY (TG_Genre_ID_fk)
+ADD CONSTRAINT FK_TG_Genre_ID FOREIGN KEY (TG_Genre_ID_fk)
 REFERENCES GENRE(Genre_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship TITLE_GENRE Table
 ALTER TABLE TITLE_GENRE
-ADD CONSTRAINT FK_Title_ID FOREIGN KEY (TG_Title_ID_fk)
+ADD CONSTRAINT FK_TG_Title_ID FOREIGN KEY (TG_Title_ID_fk)
 REFERENCES TITLE(Title_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship TITLE_FORMAT Table
 ALTER TABLE TITLE_FORMAT
-ADD CONSTRAINT FK_Title_ID FOREIGN KEY (TF_Title_ID_fk)
+ADD CONSTRAINT FK_TF_Title_ID FOREIGN KEY (TF_Title_ID_fk)
 REFERENCES TITLE(Title_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship TITLE_FORMAT Table
 ALTER TABLE TITLE_FORMAT
-ADD CONSTRAINT FK_Format_ID FOREIGN KEY (TF_Format_ID_fk)
+ADD CONSTRAINT FK_TF_Format_ID FOREIGN KEY (TF_Format_ID_fk)
 REFERENCES FORMAT(Format_ID)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
 
+-- Foreign Key Relationship DURATION Table
 ALTER TABLE DURATION
-ADD CONSTRAINT FK_Format_ID FOREIGN KEY (Duration_Format_ID_fk)
-REFERENCES FORMAT(Format_ID)
+ADD CONSTRAINT FK_Duration_Format_ID FOREIGN KEY (Duration_Format_ID_fk)
 ON UPDATE CASCADE
 ON DELETE CASCADE;
