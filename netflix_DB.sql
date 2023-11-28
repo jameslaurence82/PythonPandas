@@ -17,7 +17,7 @@ CREATE TABLE TITLE ( -- creates Title Table
 GO
 CREATE TABLE RATING ( -- creates RATING Table
     Rating_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
-    Rating_Class varchar(30) NULL
+    Rating_Rating varchar(20) NULL
 )
 GO
 CREATE TABLE CAST_ROLE ( -- creates CAST_ROLE Table
@@ -59,7 +59,7 @@ CREATE TABLE TITLE_GENRE ( -- creates TITLE_GENRE Table
 GO
 CREATE TABLE GENRE ( -- creates GENRE Table
     Genre_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
-    Genre_Listed_In varchar(255)
+    Genre_Listed_In varchar(50)
 )
 GO
 CREATE TABLE TITLE_FORMAT ( -- creates TITLE_FORMAT Table
@@ -76,7 +76,7 @@ GO
 CREATE TABLE DURATION ( -- creates DURATION Table
     Duration_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Duration_Format_ID_fk int,  -- foreign key Format.Format_ID
-    Duration_Duration varchar(255)
+    Duration_Duration varchar(30)
 )
 GO
 -- Foreign Key Relationship TITLE Table
