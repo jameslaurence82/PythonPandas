@@ -10,7 +10,7 @@ CREATE TABLE TITLE ( -- creates Title Table
     Title_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
     Title_Name varchar(255),
     Title_ReleaseYear char(4),
-    Title_DateAdded date,
+    Title_DateAdded date NULL,
     Title_Description varchar(255),
     Title_Rating_ID_fk int -- foreign key Rating.Rating_ID
 )
@@ -20,36 +20,39 @@ CREATE TABLE RATING ( -- creates RATING Table
     Rating_Rating varchar(20) NULL
 )
 GO
-CREATE TABLE CAST_ROLE ( -- creates CAST_ROLE Table
-    CR_Role_ID_fk int, -- foreign key Role.Role_ID
-    CR_Cast_ID_fk int, -- foreign key Cast.Cast_ID
-    CR_Title_ID_fk int, -- foreign key Title.Title_ID
-    CONSTRAINT CR_COMP_KEY PRIMARY KEY (CR_Role_ID_fk, CR_Cast_ID_fk, CR_Title_ID_fk) -- Composite primary key constraint
+CREATE TABLE ACTOR_TITLE ( -- creates ACTOR_TITLE Table
+    AT_Title_ID_fk int, -- foreign key Title.Title_ID
+	AT_Actor_ID_fk int, -- foreign key Title.Title_ID
+    CONSTRAINT AT_COMP_KEY PRIMARY KEY (AT_Actor_ID_fk, AT_Title_ID_fk) -- Composite primary key constraint
 )
 GO
-CREATE TABLE ROLE ( -- creates ROLE Table
-    Role_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
-    Role_Job varchar(50),
+CREATE TABLE ACTOR ( -- creates Actor Table -- Cast is a built in function so has to be in quotes
+    Actor_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
+    Actor_FName varchar(50) NULL,
+    Actor_LName varchar(50) NULL
 )
 GO
-INSERT INTO ROLE (Role_Job) -- Inserts role types into role table
-VALUES ('Actor'),('Director')
-GO
-CREATE TABLE "CAST" ( -- creates CAST Table -- Cast is a built in function so has to be in quotes
-    Cast_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
-    Cast_FName varchar(50),
-    Cast_LName varchar(50)
+CREATE TABLE DIRECTOR_TITLE ( -- creates DIRECTOR_TITLE Table
+    DT_Title_ID_fk int, -- foreign key Title.Title_ID
+	DT_Director_ID_fk int, -- foreign key Director.Director_ID
+    CONSTRAINT DT_COMP_KEY PRIMARY KEY (DT_Title_ID_fk, DT_Director_ID_fk) -- Composite primary key constraint
 )
 GO
-CREATE TABLE TITLE_COUNTRY ( -- creates TITLE_COUNTRY Table
-    TC_Title_ID_fk int, -- foreign key Title.Title_ID
-    TC_Country_ID_fk int, -- foreign key Country.Country_ID
-    CONSTRAINT TC_COMP_KEY PRIMARY KEY (TC_Title_ID_fk, TC_Country_ID_fk) -- Composite primary key constraint
+CREATE TABLE DIRECTOR ( -- creates Actor Table -- Cast is a built in function so has to be in quotes
+    Director_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
+    Director_FName varchar(50) NULL,
+    Director_LName varchar(50) NULL
+)
+GO
+CREATE TABLE COUNTRY_TITLE ( -- creates COUNTRY_TITLE Table
+    CT_Title_ID_fk int, -- foreign key Title.Title_ID
+    CT_Country_ID_fk int, -- foreign key Country.Country_ID
+    CONSTRAINT CT_COMP_KEY PRIMARY KEY (CT_Title_ID_fk, CT_Country_ID_fk) -- Composite primary key constraint
 )
 GO
 CREATE TABLE COUNTRY ( -- creates COUNTRY Table
     Country_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
-    Country_Name varchar(255)
+    Country_Name varchar(255) NULL
 )
 GO
 CREATE TABLE TITLE_GENRE ( -- creates TITLE_GENRE Table
@@ -59,7 +62,7 @@ CREATE TABLE TITLE_GENRE ( -- creates TITLE_GENRE Table
 GO
 CREATE TABLE GENRE ( -- creates GENRE Table
     Genre_ID int IDENTITY(1,1) PRIMARY KEY, -- Sets Primary Key with Auto Increment ID (start 1, step 1)
-    Genre_Listed_In varchar(50)
+    Genre_ListedIn varchar(50)
 )
 GO
 CREATE TABLE TITLE_FORMAT ( -- creates TITLE_FORMAT Table
@@ -82,76 +85,83 @@ GO
 -- Foreign Key Relationship TITLE Table
 ALTER TABLE TITLE
 ADD CONSTRAINT FK_Title_Rating_ID FOREIGN KEY (Title_Rating_ID_fk)
-REFERENCES RATING(Rating_ID)
+REFERENCES RATING(Rating_ID) -- References the RATING Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
--- Foreign Key Relationship CAST_ROLE Table
-ALTER TABLE CAST_ROLE
-ADD CONSTRAINT FK_CR_Role_ID FOREIGN KEY (CR_Role_ID_fk)
-REFERENCES ROLE(Role_ID)
+-- Foreign Key Relationship DIRECTOR_TITLE Table
+ALTER TABLE DIRECTOR_TITLE
+ADD CONSTRAINT FK_DT_Director_ID FOREIGN KEY (DT_Director_ID_fk)
+REFERENCES DIRECTOR(Director_ID) -- References the DIRECTOR Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
--- Foreign Key Relationship CAST_ROLE Table
-ALTER TABLE CAST_ROLE
-ADD CONSTRAINT FK_CR_Cast_ID FOREIGN KEY (CR_Cast_ID_fk)
-REFERENCES CAST(Cast_ID)
+-- Foreign Key Relationship DIRECTOR_TITLE Table
+ALTER TABLE DIRECTOR_TITLE
+ADD CONSTRAINT FK_DT_Title_ID FOREIGN KEY (DT_Title_ID_fk)
+REFERENCES TITLE(Title_ID) -- References the Title Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
--- Foreign Key Relationship CAST_ROLE Table
-ALTER TABLE CAST_ROLE
-ADD CONSTRAINT FK_CR_Title_ID FOREIGN KEY (CR_Title_ID_fk)
-REFERENCES TITLE(Title_ID)
+-- Foreign Key Relationship ACTOR_TITLE Table
+ALTER TABLE ACTOR_TITLE
+ADD CONSTRAINT FK_AT_Title_ID FOREIGN KEY (AT_Title_ID_fk)
+REFERENCES TITLE(Title_ID) -- References the Title Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
--- Foreign Key Relationship TITLE_COUNTRY Table
-ALTER TABLE TITLE_COUNTRY
-ADD CONSTRAINT FK_TC_Title_ID FOREIGN KEY (TC_Title_ID_fk)
-REFERENCES TITLE(Title_ID)
-ON UPDATE CASCADE
-ON DELETE CASCADE
-GO
--- Foreign Key Relationship TITLE_COUNTRY Table
-ALTER TABLE TITLE_COUNTRY
-ADD CONSTRAINT FK_TC_Country_ID FOREIGN KEY (TC_Country_ID_fk)
-REFERENCES COUNTRY(Country_ID)
+-- Foreign Key Relationship ACTOR_TITLE Table
+ALTER TABLE ACTOR_TITLE
+ADD CONSTRAINT FK_AT_Actor_ID FOREIGN KEY (AT_Actor_ID_fk)
+REFERENCES ACTOR(Actor_ID) -- References the Actor Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 -- Foreign Key Relationship TITLE_GENRE Table
 ALTER TABLE TITLE_GENRE
 ADD CONSTRAINT FK_TG_Genre_ID FOREIGN KEY (TG_Genre_ID_fk)
-REFERENCES GENRE(Genre_ID)
+REFERENCES GENRE(Genre_ID) -- References the GENRE Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 -- Foreign Key Relationship TITLE_GENRE Table
 ALTER TABLE TITLE_GENRE
 ADD CONSTRAINT FK_TG_Title_ID FOREIGN KEY (TG_Title_ID_fk)
-REFERENCES TITLE(Title_ID)
+REFERENCES TITLE(Title_ID) -- References the Title Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 -- Foreign Key Relationship TITLE_FORMAT Table
 ALTER TABLE TITLE_FORMAT
 ADD CONSTRAINT FK_TF_Title_ID FOREIGN KEY (TF_Title_ID_fk)
-REFERENCES TITLE(Title_ID)
+REFERENCES TITLE(Title_ID) -- References the Title Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 -- Foreign Key Relationship TITLE_FORMAT Table
 ALTER TABLE TITLE_FORMAT
 ADD CONSTRAINT FK_TF_Format_ID FOREIGN KEY (TF_Format_ID_fk)
-REFERENCES FORMAT(Format_ID)
+REFERENCES FORMAT(Format_ID) -- References the FORMAT Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 -- Foreign Key Relationship DURATION Table
 ALTER TABLE DURATION
 ADD CONSTRAINT FK_Duration_Format_ID FOREIGN KEY (Duration_Format_ID_fk)
-REFERENCES FORMAT(Format_ID)
+REFERENCES FORMAT(Format_ID) -- References the FORMAT Table
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship COUNTRY_TITLE Table
+ALTER TABLE COUNTRY_TITLE
+ADD CONSTRAINT FK_CT_Title_ID FOREIGN KEY (CT_Title_ID)
+REFERENCES TITLE(Title_ID) -- References the Title Table
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+-- Foreign Key Relationship COUNTRY_TITLE Table
+ALTER TABLE COUNTRY_TITLE
+ADD CONSTRAINT FK_CT_Country_Title_ID FOREIGN KEY (CT_Country_ID_fk)
+REFERENCES TITLE(Title_ID) -- References the Title Table
 ON UPDATE CASCADE
 ON DELETE CASCADE
